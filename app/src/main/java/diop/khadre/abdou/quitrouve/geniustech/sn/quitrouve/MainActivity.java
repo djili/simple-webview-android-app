@@ -1,15 +1,19 @@
 package diop.khadre.abdou.quitrouve.geniustech.sn.quitrouve;
 
+import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.view.KeyEvent;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 public class MainActivity extends AppCompatActivity {
 
     private WebView mWebView;
@@ -28,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         String url="https://www.quitrouve.com";
+        mWebView.addJavascriptInterface(new AppJavaScriptProxy(this), "androidAppProxy");
         mWebView.loadUrl(url);
         mWebView.setWebViewClient(new HelloWebViewClient());
 
@@ -42,31 +47,6 @@ public class MainActivity extends AppCompatActivity {
             // TODO Auto-generated method stub
             super.onPageStarted(view, url, favicon);
         }
-
-        /*public void onReceivedError(WebView webView, int errorCode, String description, String failingUrl) {
-            try {
-                webView.stopLoading();
-            } catch (Exception e) {
-            }
-
-            if (webView.canGoBack()) {
-                webView.goBack();
-            }
-
-            webView.loadUrl("about:blank");
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("Erreur");
-            alertDialog.setMessage("Verifier votre connexion internet.");
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Try Again", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                    startActivity(getIntent());
-                }
-            });
-
-            alertDialog.show();
-            super.onReceivedError(webView, errorCode, description, failingUrl);
-        }*/
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url)
@@ -135,5 +115,25 @@ public class MainActivity extends AppCompatActivity {
 
         // show it
         alertDialog.show();
+    }
+
+    public class AppJavaScriptProxy {
+
+        private Activity activity = null;
+
+        public AppJavaScriptProxy(Activity activity) {
+            this.activity = activity;
+        }
+
+        @JavascriptInterface
+        public void showMessage(String message) {
+
+            Toast toast = Toast.makeText(this.activity.getApplicationContext(),
+                    message,
+                    Toast.LENGTH_SHORT);
+
+            toast.show();
+        }
+
     }
 }
